@@ -1,66 +1,11 @@
-//package com.placement.management.service;
-//
-//import com.placement.management.entity.User;
-//import com.placement.management.repository.UserRepository;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.stereotype.Service;
-//import java.util.Optional;
-//
-//@Service
-//public class UserService {
-//
-//    @Autowired
-//    private UserRepository userRepository;
-//
-//    public String registerUser(User user) {
-//        if (user.getEmail() == null || !user.getEmail().toLowerCase().endsWith("@ddu.ac.in")) {
-//            return "Error: Use official @ddu.ac.in email only!";
-//        }
-//
-//        if (user.getRole().equals("STUDENT") && !user.getEmail().contains(".stu@")) {
-//            return "Error: Students must use name.stu@ddu.ac.in";
-//        }
-//
-//        if (user.getRole().equals("TPO") && !user.getEmail().contains(".tpo@")) {
-//            return "Error: TPOs must use name.tpo@ddu.ac.in";
-//        }
-//
-//        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
-//            return "Error: Email already registered!";
-//        }
-//
-//        userRepository.save(user);
-//        return "SUCCESS";
-//    }
-//
-//    public String loginLogic(String email, String password, String role) {
-//        Optional<User> userOpt = userRepository.findByEmail(email);
-//        if (userOpt.isPresent()) {
-//            User user = userOpt.get();
-//            if (user.getPassword().equals(password) && user.getRole().equals(role)) {
-//                return "SUCCESS";
-//            }
-//        }
-//        return "Invalid Credentials or Role!";
-//    }
-//
-//    public String updatePassword(String email, String newPassword) {
-//        Optional<User> userOpt = userRepository.findByEmail(email);
-//        if (userOpt.isPresent()) {
-//            User user = userOpt.get();
-//            user.setPassword(newPassword);
-//            userRepository.save(user);
-//            return "SUCCESS";
-//        }
-//        return "Error: User not found!";
-//    }
-//}
-
 package com.placement.management.service;
 
 import com.placement.management.entity.User;
 import com.placement.management.repository.UserRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class UserService {
@@ -74,7 +19,6 @@ public class UserService {
     // ================= SIGN UP =================
     public String registerUser(User user) {
 
-        // Empty field validation
         if (user.getName() == null || user.getName().trim().isEmpty())
             return "Name is required";
 
@@ -87,35 +31,50 @@ public class UserService {
         if (user.getRole() == null || user.getRole().trim().isEmpty())
             return "Role is required";
 
-        // Duplicate email check
         if (repo.existsByEmail(user.getEmail()))
             return "Email already registered";
 
-        // Save (password stored as-is because we cannot add dependency)
         repo.save(user);
-
         return "Signup successful";
     }
 
     // ================= SIGN IN =================
-    public String loginLogic(String email, String password, String role) {
+    public Map<String, String> loginLogic(String email, String password, String role) {
 
-        if (email == null || password == null || role == null)
-            return "All fields are required";
+        Map<String, String> response = new HashMap<>();
 
-        User user = repo.findByEmail(email)
-                .orElse(null);
+        if (email == null || password == null || role == null) {
+            response.put("status", "error");
+            response.put("message", "All fields are required");
+            return response;
+        }
 
-        if (user == null)
-            return "Invalid email";
+        User user = repo.findByEmail(email).orElse(null);
 
-        if (!user.getPassword().equals(password))
-            return "Invalid password";
+        if (user == null) {
+            response.put("status", "error");
+            response.put("message", "Invalid email");
+            return response;
+        }
 
-        if (!user.getRole().equalsIgnoreCase(role))
-            return "Invalid role";
+        if (!user.getPassword().equals(password)) {
+            response.put("status", "error");
+            response.put("message", "Invalid password");
+            return response;
+        }
 
-        return "Login successful";
+        if (!user.getRole().equalsIgnoreCase(role)) {
+            response.put("status", "error");
+            response.put("message", "Invalid role");
+            return response;
+        }
+
+        // ✅ SUCCESS
+        response.put("status", "success");
+        response.put("email", user.getEmail());
+        response.put("role", user.getRole());
+
+        return response;
     }
 
     // ================= FORGOT PASSWORD =================
@@ -136,5 +95,9 @@ public class UserService {
         repo.save(user);
 
         return "Password updated successfully";
+    }
+
+    public User getUserByEmail(String email) {
+        return repo.findByEmail(email).orElse(null);
     }
 }

@@ -1,5 +1,5 @@
 // import React, { useState } from "react";
-// import { Link, useNavigate } from "react-router-dom";
+// import { Link, useNavigate } from "react-router";
 //
 // export default function SignIn() {
 //   const [email, setEmail] = useState("");
@@ -13,7 +13,9 @@
 //     e.preventDefault();
 //
 //     const endpoint = isForgot ? "forgot-password" : "signin";
-//     const payload = isForgot ? { email, newPassword } : { email, password, role };
+//     const payload = isForgot
+//       ? { email, newPassword }
+//       : { email, password, role };
 //
 //     try {
 //       const res = await fetch(`http://localhost:8080/api/auth/${endpoint}`, {
@@ -22,133 +24,116 @@
 //         body: JSON.stringify(payload),
 //       });
 //
-//       const message = await res.text();
+//       // 🔥 IMPORTANT FIX
+//       const data = isForgot ? await res.text() : await res.json();
 //
-//       if (res.ok && message === "SUCCESS") {
-//         if (isForgot) {
+//       if (isForgot) {
+//         if (res.ok && data.includes("successfully")) {
 //           alert("Password updated successfully! Please login.");
 //           setIsForgot(false);
 //           setNewPassword("");
 //         } else {
-//           localStorage.setItem("userEmail", email);
-//           localStorage.setItem("userRole", role);
-//           alert("Login Successful!");
-//           navigate(role === "TPO" ? "/tpo-dashboard" : "/student-dashboard");
+//           alert(data);
+//         }
+//         return;
+//       }
+//
+//       // 🔥 LOGIN FLOW
+//       if (data.status === "success") {
+//         localStorage.setItem("userEmail", data.email);
+//         localStorage.setItem("userRole", data.role);
+//
+//         if (data.role === "STUDENT") {
+//           navigate("/student-dashboard");
+//         } else if (data.role === "TPO") {
+//           navigate("/tpo-dashboard");
 //         }
 //       } else {
-//         alert(message || "Operation failed");
+//         alert(data.message);
 //       }
+//
 //     } catch (err) {
-//       alert("Cannot connect to server. Please check if Spring Boot is running on port 8080.");
+//       alert("Cannot connect to server. Please ensure backend is running.");
 //     }
 //   };
 //
 //   return (
 //     <div className="flex items-center justify-center min-h-screen bg-slate-100 p-4">
-//       {/* Card Container */}
 //       <div className="w-full max-w-md p-8 space-y-6 bg-white shadow-2xl rounded-2xl border border-gray-100">
 //
-//         {/* Title */}
-//         <h2 className="text-3xl font-extrabold text-center text-blue-600 tracking-tight">
+//         <h2 className="text-3xl font-extrabold text-center text-blue-600">
 //           {isForgot ? "Reset Password" : "Sign In"}
 //         </h2>
 //
 //         <form onSubmit={handleSubmit} className="space-y-5">
-//           {/* Email Input */}
-//           <div>
-//             <label className="block text-sm font-medium text-gray-700 mb-1">DDU Email</label>
-//             <input
-//               type="email"
-//               placeholder="name.stu@ddu.ac.in"
-//               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-//               value={email}
-//               required
-//               onChange={(e) => setEmail(e.target.value)}
-//             />
-//           </div>
+//           <input
+//             type="email"
+//             placeholder="name.stu@ddu.ac.in"
+//             required
+//             className="w-full px-4 py-2.5 border rounded-lg"
+//             value={email}
+//             onChange={(e) => setEmail(e.target.value)}
+//           />
 //
 //           {!isForgot ? (
 //             <>
-//               {/* Password Input */}
-//               <div>
-//                 <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-//                 <input
-//                   type="password"
-//                   placeholder="••••••••"
-//                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-//                   value={password}
-//                   required
-//                   onChange={(e) => setPassword(e.target.value)}
-//                 />
-//               </div>
-//
-//               {/* Role Select */}
-//               <div>
-//                 <label className="block text-sm font-medium text-gray-700 mb-1">Login As</label>
-//                 <select
-//                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all cursor-pointer"
-//                   value={role}
-//                   onChange={(e) => setRole(e.target.value)}
-//                 >
-//                   <option value="STUDENT">Student</option>
-//                   <option value="TPO">TPO</option>
-//                 </select>
-//               </div>
-//             </>
-//           ) : (
-//             /* New Password Input for Forgot Flow */
-//             <div>
-//               <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
 //               <input
 //                 type="password"
-//                 placeholder="Enter New Password"
-//                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-//                 value={newPassword}
+//                 placeholder="Password"
 //                 required
-//                 onChange={(e) => setNewPassword(e.target.value)}
+//                 className="w-full px-4 py-2.5 border rounded-lg"
+//                 value={password}
+//                 onChange={(e) => setPassword(e.target.value)}
 //               />
-//             </div>
+//
+//               <select
+//                 className="w-full px-4 py-2.5 border rounded-lg"
+//                 value={role}
+//                 onChange={(e) => setRole(e.target.value)}
+//               >
+//                 <option value="STUDENT">Student</option>
+//                 <option value="TPO">TPO</option>
+//               </select>
+//             </>
+//           ) : (
+//             <input
+//               type="password"
+//               placeholder="New Password"
+//               required
+//               className="w-full px-4 py-2.5 border rounded-lg"
+//               value={newPassword}
+//               onChange={(e) => setNewPassword(e.target.value)}
+//             />
 //           )}
 //
-//           {/* Submit Button */}
-//           <button
-//             type="submit"
-//             className="w-full py-3 font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 active:scale-95 transition-all shadow-md hover:shadow-lg"
-//           >
-//             {isForgot ? "Update Password" : "Login to Portal"}
+//           <button className="w-full bg-blue-600 text-white py-3 rounded-lg font-bold">
+//             {isForgot ? "Update Password" : "Login"}
 //           </button>
 //         </form>
 //
-//         {/* Links Section */}
-//         <div className="text-center pt-2 space-y-3">
-//           <button
-//             type="button"
-//             onClick={() => {
-//               setIsForgot(!isForgot);
-//               setNewPassword("");
-//             }}
-//             className="text-sm font-semibold text-blue-500 hover:text-blue-700 transition-colors"
-//           >
-//             {isForgot ? "← Back to Login" : "Forgot Password?"}
-//           </button>
+//         <button
+//           onClick={() => {
+//             setIsForgot(!isForgot);
+//             setNewPassword("");
+//           }}
+//           className="text-sm text-blue-500 font-semibold"
+//         >
+//           {isForgot ? "← Back to Login" : "Forgot Password?"}
+//         </button>
 //
-//           <div className="h-px bg-gray-200 w-full"></div>
-//
-//           <p className="text-sm text-gray-600">
-//             Don't have an account?{" "}
-//             <Link to="/signup" className="font-bold text-blue-600 hover:underline">
-//               Sign Up
-//             </Link>
-//           </p>
-//         </div>
+//         <p className="text-sm text-center">
+//           Don’t have an account?{" "}
+//           <Link to="/signup" className="text-blue-600 font-bold">
+//             Sign Up
+//           </Link>
+//         </p>
 //       </div>
 //     </div>
 //   );
 // }
 
-
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router"; // make sure it's 'react-router-dom'
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
@@ -161,8 +146,40 @@ export default function SignIn() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // ✅ CLIENT-SIDE VALIDATIONS
+    if (!email.trim()) {
+      alert("Email is required!");
+      return;
+    }
+
+    // Optional: DDU email validation
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@ddu\.ac\.in$/;
+    if (!emailRegex.test(email)) {
+      alert("Please enter a valid DDU email!");
+      return;
+    }
+
+    if (isForgot) {
+      if (!newPassword.trim()) {
+        alert("New password cannot be empty!");
+        return;
+      }
+    } else {
+      if (!password.trim()) {
+        alert("Password is required!");
+        return;
+      }
+      if (!role) {
+        alert("Please select a role!");
+        return;
+      }
+    }
+
+    // 🔥 PREPARE PAYLOAD
     const endpoint = isForgot ? "forgot-password" : "signin";
-    const payload = isForgot ? { email, newPassword } : { email, password, role };
+    const payload = isForgot
+      ? { email, newPassword }
+      : { email, password, role };
 
     try {
       const res = await fetch(`http://localhost:8080/api/auth/${endpoint}`, {
@@ -171,125 +188,108 @@ export default function SignIn() {
         body: JSON.stringify(payload),
       });
 
-      const message = await res.text();
+      const data = isForgot ? await res.text() : await res.json();
 
-      if (res.ok && message === "SUCCESS") {
-        if (isForgot) {
+      if (isForgot) {
+        if (res.ok && data.toLowerCase().includes("success")) {
           alert("Password updated successfully! Please login.");
           setIsForgot(false);
           setNewPassword("");
         } else {
-          // Save user info in localStorage
-          localStorage.setItem("userEmail", email);
-          localStorage.setItem("userRole", role);
+          alert(data);
+        }
+        return;
+      }
 
-          //alert("Login Successful!");
+      // 🔥 LOGIN FLOW
+      if (data.status === "success") {
+        localStorage.setItem("userEmail", data.email);
+        localStorage.setItem("userRole", data.role);
 
-          // Navigate to dashboard based on role
-          if (role === "STUDENT") {
-            navigate("/student-dashboard");
-          } else if (role === "TPO") {
-            navigate("/tpo-dashboard");
-          }
+        if (data.role === "STUDENT") {
+          navigate("/student-dashboard");
+        } else if (data.role === "TPO") {
+          navigate("/tpo-dashboard");
         }
       } else {
-        alert(message || "Operation failed");
+        alert(data.message);
       }
     } catch (err) {
-      alert("Cannot connect to server. Please check if Spring Boot is running on port 8080.");
+      alert("Cannot connect to server. Please ensure backend is running.");
     }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-slate-100 p-4">
       <div className="w-full max-w-md p-8 space-y-6 bg-white shadow-2xl rounded-2xl border border-gray-100">
-        <h2 className="text-3xl font-extrabold text-center text-blue-600 tracking-tight">
+        <h2 className="text-3xl font-extrabold text-center text-blue-600">
           {isForgot ? "Reset Password" : "Sign In"}
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">DDU Email</label>
-            <input
-              type="email"
-              placeholder="name.stu@ddu.ac.in"
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-              value={email}
-              required
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
+          <input
+            type="email"
+            placeholder="name.stu@ddu.ac.in"
+            required
+            className="w-full px-4 py-2.5 border rounded-lg"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
 
           {!isForgot ? (
             <>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                <input
-                  type="password"
-                  placeholder="••••••••"
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                  value={password}
-                  required
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Login As</label>
-                <select
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all cursor-pointer"
-                  value={role}
-                  onChange={(e) => setRole(e.target.value)}
-                >
-                  <option value="STUDENT">Student</option>
-                  <option value="TPO">TPO</option>
-                </select>
-              </div>
-            </>
-          ) : (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
               <input
                 type="password"
-                placeholder="Enter New Password"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                value={newPassword}
+                placeholder="Password"
                 required
-                onChange={(e) => setNewPassword(e.target.value)}
+                className="w-full px-4 py-2.5 border rounded-lg"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
-            </div>
+
+              <select
+                className="w-full px-4 py-2.5 border rounded-lg"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+              >
+                <option value="STUDENT">Student</option>
+                <option value="TPO">TPO</option>
+              </select>
+            </>
+          ) : (
+            <input
+              type="password"
+              placeholder="New Password"
+              required
+              className="w-full px-4 py-2.5 border rounded-lg"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+            />
           )}
 
-          <button
-            type="submit"
-            className="w-full py-3 font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 active:scale-95 transition-all shadow-md hover:shadow-lg"
-          >
-            {isForgot ? "Update Password" : "Login to Portal"}
+          <button className="w-full bg-blue-600 text-white py-3 rounded-lg font-bold">
+            {isForgot ? "Update Password" : "Login"}
           </button>
         </form>
 
-        <div className="text-center pt-2 space-y-3">
-          <button
-            type="button"
-            onClick={() => {
-              setIsForgot(!isForgot);
-              setNewPassword("");
-            }}
-            className="text-sm font-semibold text-blue-500 hover:text-blue-700 transition-colors"
-          >
-            {isForgot ? "← Back to Login" : "Forgot Password?"}
-          </button>
+        <button
+          onClick={() => {
+            setIsForgot(!isForgot);
+            setNewPassword("");
+          }}
+          className="text-sm text-blue-500 font-semibold"
+        >
+          {isForgot ? "← Back to Login" : "Forgot Password?"}
+        </button>
 
-          <div className="h-px bg-gray-200 w-full"></div>
-
-          <p className="text-sm text-gray-600">
-            Don't have an account?{" "}
-            <Link to="/signup" className="font-bold text-blue-600 hover:underline">
-              Sign Up
-            </Link>
-          </p>
-        </div>
+        <p className="text-sm text-center">
+          Don’t have an account?{" "}
+          <Link to="/signup" className="text-blue-600 font-bold">
+            Sign Up
+          </Link>
+        </p>
       </div>
     </div>
   );
 }
+
