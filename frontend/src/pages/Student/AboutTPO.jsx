@@ -3,7 +3,7 @@ function AboutTPO() {
     <div className="max-w-5xl mx-auto space-y-10">
 
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-2xl p-8 shadow-md">
+      <div className="bg-blue-600 text-white rounded-2xl p-8 shadow-md">
         <h1 className="text-3xl font-semibold mb-2">
           Training & Placement Cell
         </h1>
