@@ -10,13 +10,13 @@ function PlacementStatus() {
           <strong>Current Status:</strong> Placed
         </p>
         <p className="text-gray-700 mb-2">
-          <strong>Company:</strong> Infosys
+          <strong>Company:</strong> Microsoft
         </p>
         <p className="text-gray-700 mb-2">
           <strong>Role:</strong> System Engineer
         </p>
         <p className="text-gray-700">
-          <strong>Package:</strong> ₹3.6 LPA
+          <strong>Package:</strong> ₹30 LPA
         </p>
       </div>
     </div>
