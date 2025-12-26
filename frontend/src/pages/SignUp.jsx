@@ -40,8 +40,17 @@ function SignUp() {
       return;
     }
 
-    if (role === "STUDENT" && (!formData.cpi || isNaN(formData.cpi))) {
-      alert("Enter a valid CPI for Student!");
+    // ✅ FIXED CPI VALIDATION (4 ≤ CPI ≤ 10)
+    if (
+      role === "STUDENT" &&
+      (
+        !formData.cpi ||
+        isNaN(formData.cpi) ||
+        parseFloat(formData.cpi) < 4 ||
+        parseFloat(formData.cpi) > 10
+      )
+    ) {
+      alert("CPI must be between 4.0 and 10.0");
       return;
     }
 
@@ -107,22 +116,66 @@ function SignUp() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-3">
-          <input type="text" placeholder="Full Name" required className="w-full border p-2 rounded" onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
-          <input type="email" placeholder="Email" required className="w-full border p-2 rounded" onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
-          <input type="text" placeholder="Mobile" required className="w-full border p-2 rounded" onChange={(e) => setFormData({ ...formData, mobile: e.target.value })} />
+          <input
+            type="text"
+            placeholder="Full Name"
+            required
+            className="w-full border p-2 rounded"
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          />
+          <input
+            type="email"
+            placeholder="Email"
+            required
+            className="w-full border p-2 rounded"
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+          />
+          <input
+            type="text"
+            placeholder="Mobile"
+            required
+            className="w-full border p-2 rounded"
+            onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
+          />
 
           {role === "STUDENT" && (
-            <input type="number" step="0.01" placeholder="CPI" required className="w-full border p-2 rounded" onChange={(e) => setFormData({ ...formData, cpi: e.target.value })} />
+            <input
+              type="number"
+              step="0.01"
+              placeholder="CPI"
+              required
+              className="w-full border p-2 rounded"
+              onChange={(e) => setFormData({ ...formData, cpi: e.target.value })}
+            />
           )}
 
-          <input type="password" placeholder="Password" required className="w-full border p-2 rounded" onChange={(e) => setFormData({ ...formData, password: e.target.value })} />
-          <input type="password" placeholder="Confirm Password" required className="w-full border p-2 rounded" onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })} />
+          <input
+            type="password"
+            placeholder="Password"
+            required
+            className="w-full border p-2 rounded"
+            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+          />
+          <input
+            type="password"
+            placeholder="Confirm Password"
+            required
+            className="w-full border p-2 rounded"
+            onChange={(e) =>
+              setFormData({ ...formData, confirmPassword: e.target.value })
+            }
+          />
 
-          <button className="w-full bg-blue-600 text-white py-2 rounded">Register</button>
+          <button className="w-full bg-blue-600 text-white py-2 rounded">
+            Register
+          </button>
         </form>
 
         <p className="text-center mt-4 text-sm">
-          Already have an account? <Link to="/signin" className="text-blue-600 font-bold">Sign In</Link>
+          Already have an account?{" "}
+          <Link to="/signin" className="text-blue-600 font-bold">
+            Sign In
+          </Link>
         </p>
       </div>
     </div>
@@ -130,4 +183,3 @@ function SignUp() {
 }
 
 export default SignUp;
-
