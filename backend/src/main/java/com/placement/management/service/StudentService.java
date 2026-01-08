@@ -125,25 +125,65 @@ public class StudentService {
         profile.setCareerPreference(careerPreference);
 
         // 4️⃣ Resume upload (PDF only)
+//        if (resume != null && !resume.isEmpty()) {
+//
+//            if (!"application/pdf".equalsIgnoreCase(resume.getContentType())) {
+//                throw new RuntimeException("Only PDF files are allowed");
+//            }
+//
+//            try {
+//                // This points to the "backend" folder where your pom.xml is
+//                String rootPath = System.getProperty("user.dir");
+//                String uploadDir = rootPath + File.separator + "uploads" + File.separator + "resumes" + File.separator;
+//
+//                File directory = new File(uploadDir);
+//                if (!directory.exists()) {
+//                    directory.mkdirs();
+//                }
+//
+//                String fileName = userId + "_resume.pdf";
+//                File destination = new File(uploadDir + fileName);
+//
+//                resume.transferTo(destination);
+//
+//                // Store relative path in DB so you can serve it later
+//                profile.setResumePath("backend/uploads/resumes/" + fileName);
+//
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//                throw new RuntimeException("Resume upload failed: " + e.getMessage());
+//            }
+//
+//        }
+
+        // Inside saveOrUpdateProfile method in StudentService.java
         if (resume != null && !resume.isEmpty()) {
-
-            if (!"application/pdf".equalsIgnoreCase(resume.getContentType())) {
-                throw new RuntimeException("Only PDF files are allowed");
-            }
-
             try {
-                String uploadDir = "src/main/resources/static/resumes/";
-                File directory = new File(uploadDir);
-                if (!directory.exists()) directory.mkdirs();
+                // 1. Get the absolute path to the backend folder
+                String rootPath = System.getProperty("user.dir");
+                String uploadDirPath = rootPath + File.separator + "uploads" + File.separator + "resumes";
 
+                File directory = new File(uploadDirPath);
+                if (!directory.exists()) {
+                    directory.mkdirs(); // Creates the folder if it doesn't exist
+                }
+
+                // 2. Create the file name (only the name, not the path)
                 String fileName = userId + "_resume.pdf";
-                File destination = new File(uploadDir + fileName);
+                File destination = new File(uploadDirPath + File.separator + fileName);
 
+                // 3. Physically save the file
                 resume.transferTo(destination);
-                profile.setResumePath("/resumes/" + fileName);
+
+                // 4. Save ONLY the filename in the database (e.g., "13_resume.pdf")
+                // Your WebConfig will handle the prefixing automatically
+                profile.setResumePath(fileName);
+
+                System.out.println("File saved successfully at: " + destination.getAbsolutePath());
 
             } catch (Exception e) {
-                throw new RuntimeException("Resume upload failed");
+                e.printStackTrace();
+                throw new RuntimeException("Resume upload failed: " + e.getMessage());
             }
         }
 
@@ -173,5 +213,4 @@ public class StudentService {
                 });
     }
 }
-
 

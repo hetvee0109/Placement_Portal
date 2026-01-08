@@ -69,8 +69,10 @@ export default function SignIn() {
 
       // 🔥 LOGIN FLOW
       if (data.status === "success") {
-        localStorage.setItem("userEmail", data.email);
-        localStorage.setItem("userRole", data.role);
+        localStorage.setItem("userId", data.id);       // ✅ REQUIRED
+          localStorage.setItem("userName", data.name);   // ✅ REQUIRED
+          localStorage.setItem("userEmail", data.email);
+          localStorage.setItem("userRole", data.role);
 
         if (data.role === "STUDENT") {
           navigate("/student-dashboard");
