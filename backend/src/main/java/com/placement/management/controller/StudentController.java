@@ -46,6 +46,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/students")
+@CrossOrigin(origins = "http://localhost:3000")
 public class StudentController {
 
     private final StudentService service;
@@ -96,3 +97,5 @@ public class StudentController {
         return service.getProfile(userId);
     }
 }
+
+
