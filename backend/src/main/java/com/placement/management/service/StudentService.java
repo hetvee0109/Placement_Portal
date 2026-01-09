@@ -124,37 +124,6 @@ public class StudentService {
         profile.setTwelfthPercentage(twelfthPercentage);
         profile.setCareerPreference(careerPreference);
 
-        // 4️⃣ Resume upload (PDF only)
-//        if (resume != null && !resume.isEmpty()) {
-//
-//            if (!"application/pdf".equalsIgnoreCase(resume.getContentType())) {
-//                throw new RuntimeException("Only PDF files are allowed");
-//            }
-//
-//            try {
-//                // This points to the "backend" folder where your pom.xml is
-//                String rootPath = System.getProperty("user.dir");
-//                String uploadDir = rootPath + File.separator + "uploads" + File.separator + "resumes" + File.separator;
-//
-//                File directory = new File(uploadDir);
-//                if (!directory.exists()) {
-//                    directory.mkdirs();
-//                }
-//
-//                String fileName = userId + "_resume.pdf";
-//                File destination = new File(uploadDir + fileName);
-//
-//                resume.transferTo(destination);
-//
-//                // Store relative path in DB so you can serve it later
-//                profile.setResumePath("backend/uploads/resumes/" + fileName);
-//
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//                throw new RuntimeException("Resume upload failed: " + e.getMessage());
-//            }
-//
-//        }
 
         // Inside saveOrUpdateProfile method in StudentService.java
         if (resume != null && !resume.isEmpty()) {

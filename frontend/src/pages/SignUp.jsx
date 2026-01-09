@@ -130,13 +130,28 @@ function SignUp() {
             className="w-full border p-2 rounded"
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
           />
-          <input
-            type="text"
-            placeholder="Mobile"
-            required
-            className="w-full border p-2 rounded"
-            onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
-          />
+{/*           <input */}
+{/*             type="text" */}
+{/*             placeholder="Mobile" */}
+{/*             required */}
+{/*             className="w-full border p-2 rounded" */}
+{/*             onChange={(e) => setFormData({ ...formData, mobile: e.target.value })} */}
+{/*           /> */}
+
+            <input
+              type="tel"
+              placeholder="Mobile (10 digits)"
+              required
+              className="w-full border p-2 rounded"
+              value={formData.mobile || ""}
+              onChange={(e) => {
+                const value = e.target.value;
+                // Condition: Only allow numbers and max length of 10
+                if (/^\d*$/.test(value) && value.length <= 10) {
+                  setFormData({ ...formData, mobile: value });
+                }
+              }}
+            />
 
           {role === "STUDENT" && (
             <input

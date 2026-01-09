@@ -49,6 +49,7 @@ public class StudentProfile {
     @Column(name = "career_preference")
     private CareerPreference careerPreference;
 
+
     // =====================
     // Constructors
     // =====================
@@ -116,4 +117,6 @@ public class StudentProfile {
     public void setCareerPreference(CareerPreference careerPreference) {
         this.careerPreference = careerPreference;
     }
+
 }
+
