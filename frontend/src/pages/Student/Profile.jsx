@@ -123,7 +123,6 @@
 //
 // export default Profile;
 
-
 import React, { useEffect, useState, useCallback } from "react";
 
 const Profile = () => {
@@ -141,7 +140,9 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [feedback, setFeedback] = useState({ type: "", text: "" });
 
-  // 1. Defined fetch function outside useEffect so it's accessible everywhere
+  // New state for the separate feedback table
+  const [tpoFeedback, setTpoFeedback] = useState("");
+
   const fetchAllData = useCallback(async () => {
     const email = localStorage.getItem("userEmail");
     if (!email) {
@@ -151,23 +152,31 @@ const Profile = () => {
     }
 
     try {
-      // Fetch User basic details
+      // 1. Fetch User basic details
       const userRes = await fetch(`http://localhost:8080/api/auth/get-user?email=${email}`);
       if (!userRes.ok) throw new Error("Failed to fetch user basic info");
       const userData = await userRes.json();
       setUser(userData);
 
-      // Fetch Student Profile details using userId
+      // 2. Fetch Student Profile details
       const profileRes = await fetch(`http://localhost:8080/api/students/profile/${userData.id}`);
       if (profileRes.ok) {
         const profileData = await profileRes.json();
         setProfile({
           ...profileData,
           skills: profileData.skills ? profileData.skills.join(", ") : "",
-          resume: null, // Reset file input buffer
+          resume: null,
           resumePath: profileData.resumePath || "",
         });
       }
+
+      // 3. Fetch Feedback from the separate table
+      const feedbackRes = await fetch(`http://localhost:8080/api/feedback/student/${userData.id}`);
+      if (feedbackRes.ok) {
+        const data = await feedbackRes.text();
+        if (data !== "No feedback yet") setTpoFeedback(data);
+      }
+
     } catch (error) {
       console.error("Error fetching data:", error);
       setFeedback({ type: "error", text: "Error loading profile data" });
@@ -180,7 +189,6 @@ const Profile = () => {
     fetchAllData();
   }, [fetchAllData]);
 
-  // 2. Handle Form Submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setFeedback({ type: "", text: "" });
@@ -191,13 +199,9 @@ const Profile = () => {
     formData.append("twelfthPercentage", profile.twelfthPercentage);
     formData.append("careerPreference", profile.careerPreference);
 
-    // Append skills individually for List<String> compatibility
     const skillArray = profile.skills.split(",").map(s => s.trim()).filter(s => s !== "");
-    skillArray.forEach(skill => {
-      formData.append("skills", skill);
-    });
+    skillArray.forEach(skill => formData.append("skills", skill));
 
-    // Append the file with key "resume"
     if (profile.resume && profile.resume instanceof File) {
       formData.append("resume", profile.resume);
     }
@@ -210,25 +214,20 @@ const Profile = () => {
 
       if (response.ok) {
         const updatedProfile = await response.json();
-
-        // Update local state with fresh data from backend
         setProfile({
           ...updatedProfile,
           skills: updatedProfile.skills ? updatedProfile.skills.join(", ") : "",
           resume: null,
           resumePath: updatedProfile.resumePath,
         });
-
         setFeedback({ type: "success", text: "Profile updated successfully!" });
         setIsEditing(false);
-
-        // Auto-clear success message after 3 seconds
         setTimeout(() => setFeedback({ type: "", text: "" }), 3000);
       } else {
-        setFeedback({ type: "error", text: "Failed to update profile. Ensure all fields are valid." });
+        setFeedback({ type: "error", text: "Failed to update profile." });
       }
     } catch (error) {
-      setFeedback({ type: "error", text: "Server error. Check if your backend is running." });
+      setFeedback({ type: "error", text: "Server error." });
     }
   };
 
@@ -247,7 +246,7 @@ const Profile = () => {
             <button
               onClick={() => {
                 setIsEditing(!isEditing);
-                setFeedback({ type: "", text: "" }); // Clear messages on toggle
+                setFeedback({ type: "", text: "" });
               }}
               className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
                 isEditing ? "bg-red-100 text-red-600 hover:bg-red-200" : "bg-blue-600 text-white hover:bg-blue-700"
@@ -263,19 +262,30 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* Unified Feedback Message */}
+      {/* TPO FEEDBACK SECTION (New Separate Table Data) */}
+      {tpoFeedback && (
+        <div className="mb-6 p-6 bg-amber-50 border-l-8 border-amber-500 rounded-lg shadow-sm">
+          <div className="flex items-center gap-3 mb-2">
+            <span className="text-2xl">📢</span>
+            <h3 className="text-amber-900 font-black text-lg uppercase tracking-tight">TPO Feedback for you</h3>
+          </div>
+          <p className="text-amber-800 italic text-lg leading-relaxed">"{tpoFeedback}"</p>
+          <p className="text-amber-600 text-xs mt-3 font-semibold uppercase tracking-widest">
+            Please update your profile/resume accordingly.
+          </p>
+        </div>
+      )}
+
+      {/* Save Status Messages */}
       {feedback.text && (
         <div className={`mb-6 p-4 rounded-xl text-center font-bold border ${
-          feedback.type === "success"
-            ? "bg-green-50 text-green-700 border-green-200"
-            : "bg-red-50 text-red-700 border-red-200"
+          feedback.type === "success" ? "bg-green-50 text-green-700 border-green-200" : "bg-red-50 text-red-700 border-red-200"
         }`}>
           {feedback.text}
         </div>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Basic Stats Side Bar */}
         <div className="lg:col-span-1 space-y-6">
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
             <h3 className="text-gray-400 text-xs font-bold uppercase tracking-wider mb-4">Contact Info</h3>
@@ -293,7 +303,6 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* Form Details Main Area */}
         <div className="lg:col-span-2">
           <form onSubmit={handleSubmit} className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 space-y-6">
             <h2 className="text-xl font-bold text-gray-800 border-b pb-4">Professional Details</h2>
@@ -302,9 +311,7 @@ const Profile = () => {
               <div>
                 <label className="block text-sm font-bold text-gray-600 mb-2">10th Percentage</label>
                 <input
-                  type="number"
-                  step="0.01"
-                  disabled={!isEditing}
+                  type="number" step="0.01" disabled={!isEditing}
                   value={profile.tenthPercentage || ""}
                   onChange={(e) => setProfile({ ...profile, tenthPercentage: e.target.value })}
                   className="w-full px-4 py-2 bg-gray-50 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none disabled:opacity-60"
@@ -314,9 +321,7 @@ const Profile = () => {
               <div>
                 <label className="block text-sm font-bold text-gray-600 mb-2">12th Percentage</label>
                 <input
-                  type="number"
-                  step="0.01"
-                  disabled={!isEditing}
+                  type="number" step="0.01" disabled={!isEditing}
                   value={profile.twelfthPercentage || ""}
                   onChange={(e) => setProfile({ ...profile, twelfthPercentage: e.target.value })}
                   className="w-full px-4 py-2 bg-gray-50 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none disabled:opacity-60"
@@ -326,13 +331,12 @@ const Profile = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-gray-600 mb-2">Technical Skills (Comma separated)</label>
+              <label className="block text-sm font-bold text-gray-600 mb-2">Technical Skills</label>
               <input
-                type="text"
-                disabled={!isEditing}
+                type="text" disabled={!isEditing}
                 value={profile.skills || ""}
                 onChange={(e) => setProfile({ ...profile, skills: e.target.value })}
-                placeholder="e.g. Java, React, Python, SQL"
+                placeholder="e.g. Java, React, Python"
                 className="w-full px-4 py-2 bg-gray-50 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none disabled:opacity-60"
                 required
               />
@@ -356,8 +360,7 @@ const Profile = () => {
               <div className="flex items-center space-x-4">
                 {isEditing ? (
                   <input
-                    type="file"
-                    accept=".pdf"
+                    type="file" accept=".pdf"
                     onChange={(e) => setProfile({ ...profile, resume: e.target.files[0] })}
                     className="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                   />
@@ -366,23 +369,13 @@ const Profile = () => {
                     {profile.resumePath ? (
                       <>
                         <span className="bg-green-100 text-green-700 px-4 py-2 rounded-full flex items-center gap-2 border border-green-200 text-sm font-medium">
-                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
                           Uploaded
                         </span>
-
-                        {/* VIEW RESUME BUTTON */}
                         <a
                           href={`http://localhost:8080/uploads/resumes/${profile.resumePath}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                          target="_blank" rel="noopener noreferrer"
                           className="px-4 py-2 bg-blue-50 text-blue-600 rounded-full text-sm font-bold border border-blue-200 hover:bg-blue-600 hover:text-white transition-all flex items-center gap-2"
                         >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                          </svg>
                           View PDF
                         </a>
                       </>

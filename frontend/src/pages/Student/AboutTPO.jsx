@@ -96,25 +96,25 @@ function AboutTPO() {
         <div className="grid grid-cols-2 gap-6 text-gray-700">
           <div>
             <p className="font-medium">Training & Placement Officer</p>
-            <p className="text-gray-600">Prof. A. K. Mehta</p>
+            <p className="text-gray-600">Prof. Viral Shah</p>
           </div>
 
           <div>
             <p className="font-medium">Email</p>
-            <p className="text-gray-600">tpo@ddu.ac.in</p>
+            <p className="text-gray-600">viralshah@ddu.ac.in</p>
           </div>
 
           <div>
             <p className="font-medium">Office Location</p>
             <p className="text-gray-600">
-              Academic Block – II, First Floor
+              FOT, IT department, Lab - 1
             </p>
           </div>
 
           <div>
             <p className="font-medium">Office Hours</p>
             <p className="text-gray-600">
-              Monday – Friday, 10:00 AM – 5:00 PM
+              Monday – Saturday, 8:30 AM – 5:30 PM
             </p>
           </div>
         </div>
