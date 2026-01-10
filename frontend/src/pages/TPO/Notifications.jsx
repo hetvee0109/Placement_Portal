@@ -1,109 +1,3 @@
-// import React, { useState, useEffect } from "react";
-//
-// const TPONotification = () => {
-//   const [students, setStudents] = useState([]);
-//   const [formData, setFormData] = useState({
-//     companyName: "",
-//     minCpi: "",
-//     description: "",
-//     driveDate: "",
-//     eligibilityType: "PLACEMENT",
-//     mode: "PUBLIC",
-//     targetStudentIds: []
-//   });
-//
-//   useEffect(() => {
-//     fetch("http://localhost:8080/api/students?role=TPO") // Fetching students for Private mode selection
-//       .then(res => res.json())
-//       .then(data => setStudents(data))
-//       .catch(err => console.error("Error fetching students:", err));
-//   }, []);
-//
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     try {
-//       const response = await fetch("http://localhost:8080/api/notifications/create", {
-//         method: "POST",
-//         headers: { "Content-Type": "application/json" },
-//         body: JSON.stringify(formData)
-//       });
-//       if (response.ok) {
-//         alert("Notification Broadcasted Successfully!");
-//         setFormData({ companyName: "", minCpi: "", description: "", driveDate: "", eligibilityType: "PLACEMENT", mode: "PUBLIC", targetStudentIds: [] });
-//       }
-//     } catch (error) {
-//       alert("Error sending notification");
-//     }
-//   };
-//
-//   const handleStudentSelect = (id) => {
-//     const updatedIds = formData.targetStudentIds.includes(id)
-//       ? formData.targetStudentIds.filter(sid => sid !== id)
-//       : [...formData.targetStudentIds, id];
-//     setFormData({ ...formData, targetStudentIds: updatedIds });
-//   };
-//
-//   return (
-//     <div className="max-w-4xl mx-auto p-8 bg-white shadow-xl rounded-2xl mt-10 border border-gray-100">
-//       <h2 className="text-3xl font-black text-indigo-700 mb-6 flex items-center gap-2">
-//         📢 Create New Drive Notification
-//       </h2>
-//       <form onSubmit={handleSubmit} className="space-y-5">
-//         <div className="grid grid-cols-2 gap-4">
-//           <input type="text" placeholder="Company Name" className="p-3 border rounded-lg outline-indigo-500"
-//             value={formData.companyName} onChange={e => setFormData({...formData, companyName: e.target.value})} required />
-//           <input type="number" step="0.01" placeholder="Min CPI Criteria" className="p-3 border rounded-lg outline-indigo-500"
-//             value={formData.minCpi} onChange={e => setFormData({...formData, minCpi: e.target.value})} required />
-//         </div>
-//
-//         <textarea placeholder="Job Description" className="w-full p-3 border rounded-lg outline-indigo-500" rows="3"
-//           value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} required />
-//
-//         <div className="grid grid-cols-2 gap-4">
-//           <div>
-//             <label className="text-xs font-bold text-gray-500 uppercase">Drive Date</label>
-//             <input type="datetime-local" className="w-full p-3 border rounded-lg outline-indigo-500"
-//               value={formData.driveDate} onChange={e => setFormData({...formData, driveDate: e.target.value})} required />
-//           </div>
-//           <div>
-//             <label className="text-xs font-bold text-gray-500 uppercase">Eligibility Group</label>
-//             <select className="w-full p-3 border rounded-lg" value={formData.eligibilityType}
-//               onChange={e => setFormData({...formData, eligibilityType: e.target.value})}>
-//               <option value="PLACEMENT">Placement</option>
-//               <option value="HIGHER_STUDIES">Higher Studies</option>
-//             </select>
-//           </div>
-//         </div>
-//
-//         <div className="bg-gray-50 p-4 rounded-xl border border-dashed border-gray-300">
-//           <label className="block font-bold text-gray-700 mb-2">Broadcast Mode</label>
-//           <div className="flex gap-6 mb-4">
-//             <label className="flex items-center gap-2"><input type="radio" name="mode" value="PUBLIC" checked={formData.mode === 'PUBLIC'} onChange={() => setFormData({...formData, mode: 'PUBLIC'})}/> Public (All Eligible)</label>
-//             <label className="flex items-center gap-2"><input type="radio" name="mode" value="PRIVATE" checked={formData.mode === 'PRIVATE'} onChange={() => setFormData({...formData, mode: 'PRIVATE'})}/> Private (Specific Students)</label>
-//           </div>
-//
-//           {formData.mode === 'PRIVATE' && (
-//             <div className="max-h-40 overflow-y-auto border p-2 rounded bg-white">
-//               {students.map(s => (
-//                 <label key={s.id} className="flex items-center gap-2 p-1 hover:bg-indigo-50 rounded">
-//                   <input type="checkbox" checked={formData.targetStudentIds.includes(s.id)} onChange={() => handleStudentSelect(s.id)} />
-//                   <span className="text-sm">{s.name} (CPI: {s.cpi})</span>
-//                 </label>
-//               ))}
-//             </div>
-//           )}
-//         </div>
-//
-//         <button type="submit" className="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg">
-//           Broadcast Notification
-//         </button>
-//       </form>
-//     </div>
-//   );
-// };
-//
-// export default TPONotification;
-
 import React, { useState, useEffect } from "react";
 
 const TPONotification = () => {
@@ -132,7 +26,7 @@ const TPONotification = () => {
       method: "POST",
       body: data
     });
-    if (res.ok) alert("Sent successfully!");
+    if (res.ok) alert("The message has been sent successfully.");
   };
 
   return (

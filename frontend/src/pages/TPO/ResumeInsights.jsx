@@ -35,7 +35,7 @@ const ResumeInsights = () => {
       });
 
       if (response.ok) {
-        alert(`Feedback sent to Student ID: ${studentId}`);
+        alert(`Feedback has been successfully sent to the student.`);
         setFeedbackTexts({ ...feedbackTexts, [studentId]: "" }); // Clear input
       } else {
         alert("Failed to send feedback.");

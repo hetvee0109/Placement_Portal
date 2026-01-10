@@ -1,37 +1,3 @@
-// import React from "react";
-// import { Link, useNavigate } from "react-router";
-//
-// export default function StudentNavbar() {
-//   const navigate = useNavigate();
-//   const userEmail = localStorage.getItem("userEmail");
-//
-//   const handleLogout = () => {
-//     localStorage.clear();
-//     navigate("/signin");
-//   };
-//
-//   return (
-//     <nav className="bg-white shadow-md border-b border-gray-100">
-//       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-//         <div className="flex justify-between h-16">
-//           <div className="flex items-center">
-//             <Link to="/student-dashboard" className="flex items-center space-x-2">
-//               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">D</div>
-//               <span className="text-xl font-bold text-gray-800">DDU Portal</span>
-//             </Link>
-//           </div>
-//           <div className="flex items-center space-x-4">
-//             <Link to="/student-dashboard" className="text-gray-600 hover:text-blue-600">Dashboard</Link>
-//             <Link to="/student/profile" className="text-gray-600 hover:text-blue-600">Profile</Link>
-//             <button onClick={handleLogout} className="bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-bold">Logout</button>
-//           </div>
-//         </div>
-//       </div>
-//     </nav>
-//   );
-// }
-// // DO NOT ADD ANY EXPORT DEFAULT AT THE BOTTOM
-
 import { NavLink, useNavigate } from "react-router";
 
 function StudentNavbar() {
