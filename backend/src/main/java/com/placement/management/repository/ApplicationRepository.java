@@ -17,4 +17,9 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 
     @Query("SELECT a FROM Application a WHERE (:company IS NULL OR a.notification.companyName LIKE %:company%)")
     List<Application> findByCompanyName(@Param("company") String company);
+
+    // ADD this method (do not remove existing ones)
+    List<Application> findByStudent(User student);
+
+
 }

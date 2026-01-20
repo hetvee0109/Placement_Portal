@@ -1,37 +1,72 @@
-function JobApplications() {
+import React, { useEffect, useState } from "react";
+
+const JobApplications = () => {
+  const [applications, setApplications] = useState([]);
+  const [user, setUser] = useState(null);
+
+  const statusColor = (status) => {
+    if (status === "SELECTED") return "text-green-600";
+    if (status === "REJECTED") return "text-red-600";
+    return "text-amber-600";
+  };
+
+
+  useEffect(() => {
+    const email = localStorage.getItem("userEmail");
+
+    fetch(`http://localhost:8080/api/auth/get-user?email=${email}`)
+      .then(res => res.json())
+      .then(u => {
+        setUser(u);
+        return fetch(`http://localhost:8080/api/job-applications/student/${u.id}`);
+      })
+      .then(res => res.json())
+      .then(data => setApplications(data))
+      .catch(err => console.error(err));
+  }, []);
+
   return (
-    <div>
-      <h1 className="text-2xl font-semibold text-blue-700 mb-6">
-        Job Applications
-      </h1>
+    <div className="max-w-4xl mx-auto p-6">
+      <h1 className="text-2xl font-black mb-6">My Job Applications</h1>
 
-      <div className="space-y-4">
-        <div className="border rounded-lg p-4 flex justify-between">
-          <div>
-            <p className="font-medium">TCS</p>
-            <p className="text-sm text-gray-500">Software Engineer</p>
-          </div>
-          <span className="text-blue-700 font-medium">Applied</span>
-        </div>
+      {applications.length === 0 ? (
+        <p className="text-gray-400 text-sm">You haven’t applied to any company yet.</p>
+      ) : (
+        <div className="space-y-4">
+          {applications.map(app => (
+            <div
+              key={app.id}
+              className="bg-white p-5 rounded-xl shadow border"
+            >
+              <h3 className="text-lg font-bold text-indigo-800">
+                {app.notification.companyName}
+              </h3>
 
-        <div className="border rounded-lg p-4 flex justify-between">
-          <div>
-            <p className="font-medium">Infosys</p>
-            <p className="text-sm text-gray-500">System Engineer</p>
-          </div>
-          <span className="text-green-600 font-medium">Shortlisted</span>
-        </div>
+              <p className="text-sm text-gray-600 mt-1">
+                {app.notification.description}
+              </p>
 
-        <div className="border rounded-lg p-4 flex justify-between">
-          <div>
-            <p className="font-medium">Capgemini</p>
-            <p className="text-sm text-gray-500">Analyst</p>
-          </div>
-          <span className="text-yellow-600 font-medium">Interview Scheduled</span>
+              <p className="text-xs text-gray-400 mt-2">
+                Applied on: {new Date(app.appliedAt).toLocaleString()}
+              </p>
+              <span
+                className={
+                  app.status === "SELECTED"
+                    ? "text-green-600"
+                    : app.status === "REJECTED"
+                    ? "text-red-600"
+                    : "text-yellow-600"
+                }
+              >
+                {app.status}
+              </span>
+
+            </div>
+          ))}
         </div>
-      </div>
+      )}
     </div>
   );
-}
+};
 
 export default JobApplications;
