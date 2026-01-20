@@ -1,48 +1,3 @@
-//package com.placement.management.controller;
-//
-//import com.placement.management.entity.*;
-//import com.placement.management.service.NotificationService;
-//import org.springframework.http.ResponseEntity;
-//import org.springframework.web.bind.annotation.*;
-//import java.util.List;
-//
-//@RestController
-//@RequestMapping("/api/notifications")
-//@CrossOrigin(origins = "http://localhost:3000")
-//public class NotificationController {
-//
-//    private final NotificationService service;
-//
-//    public NotificationController(NotificationService service) {
-//        this.service = service;
-//    }
-//
-//    // TPO: Create Notification
-//    @PostMapping("/create")
-//    public ResponseEntity<Notification> create(@RequestBody Notification note) {
-//        return ResponseEntity.ok(service.createNotification(note));
-//    }
-//
-//    // STUDENT: Get filtered notifications
-//    @GetMapping("/student/{studentId}")
-//    public ResponseEntity<List<Notification>> getForStudent(@PathVariable Long studentId) {
-//        return ResponseEntity.ok(service.getNotificationsForStudent(studentId));
-//    }
-//
-//    // STUDENT: Apply
-//    @PostMapping("/apply")
-//    public ResponseEntity<?> apply(@RequestParam Long studentId, @RequestParam Long noteId) {
-//        String result = service.applyToJob(studentId, noteId);
-//        return ResponseEntity.ok("{\"status\": \"" + result + "\"}");
-//    }
-//
-//    // TPO: Tracker
-//    @GetMapping("/applications")
-//    public ResponseEntity<List<Application>> getTracker() {
-//        return ResponseEntity.ok(service.getAllApplications());
-//    }
-//}
-
 package com.placement.management.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -60,6 +15,13 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
+import com.placement.management.dto.CompanyApplicationsDTO;
+import com.placement.management.repository.ApplicationRepository;
+
+import java.util.Map;
+import java.util.stream.Collectors;
+
+
 @RestController
 @RequestMapping("/api/notifications")
 @CrossOrigin(origins = "http://localhost:3000")
@@ -67,10 +29,15 @@ public class NotificationController {
 
     private final NotificationService service;
     private final String UPLOAD_DIR = "uploads/resumes/";
+    private final ApplicationRepository applicationRepo;
 
-    public NotificationController(NotificationService service) {
+
+    public NotificationController(NotificationService service,
+                                  ApplicationRepository applicationRepo) {
         this.service = service;
+        this.applicationRepo = applicationRepo;
     }
+
 
     // TPO: Advanced Create (Supports JSON + PDF File)
     @PostMapping("/create-advanced")
@@ -127,4 +94,25 @@ public class NotificationController {
     public ResponseEntity<List<Application>> getTracker() {
         return ResponseEntity.ok(service.getAllApplications());
     }
+
+    // TPO: Company-wise Application Tracker
+    @GetMapping("/company-wise")
+    public List<CompanyApplicationsDTO> getApplicationsCompanyWise() {
+
+        List<Application> allApps = applicationRepo.findAll();
+
+        Map<String, List<Application>> grouped =
+                allApps.stream()
+                        .collect(Collectors.groupingBy(
+                                a -> a.getNotification().getCompanyName()
+                        ));
+
+        return grouped.entrySet()
+                .stream()
+                .map(e -> new CompanyApplicationsDTO(e.getKey(), e.getValue()))
+                .toList();
+    }
+
+
+
 }

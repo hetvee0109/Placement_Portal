@@ -4,6 +4,32 @@ const StudentNotification = () => {
   const [notifications, setNotifications] = useState([]);
   const [user, setUser] = useState(null);
 
+  // added it now
+  const handleApply = async (noteId) => {
+    if (!user) return;
+
+    try {
+      const res = await fetch(
+        `http://localhost:8080/api/notifications/apply?studentId=${user.id}&noteId=${noteId}`,
+        { method: "POST" }
+      );
+
+      const data = await res.json();
+
+      if (data.status === "SUCCESS") {
+        alert("Applied successfully!");
+      } else if (data.status === "ALREADY_APPLIED") {
+        alert("You have already applied to this company.");
+      } else {
+        alert("Application failed: " + data.status);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Server error while applying.");
+    }
+  };
+
+
   const fetchData = () => {
     const email = localStorage.getItem("userEmail");
     fetch(`http://localhost:8080/api/auth/get-user?email=${email}`)
@@ -110,16 +136,31 @@ const StudentNotification = () => {
                     </div>
                   </div>
 
-                  <button
-                    disabled={!isEligible}
-                    className={`w-full py-3 rounded-xl font-bold transition-all shadow-sm ${
-                      isEligible
-                      ? "bg-indigo-600 text-white hover:bg-indigo-700 active:scale-95"
-                      : "bg-gray-100 text-gray-400 cursor-not-allowed"
-                    }`}
-                  >
-                    {isEligible ? "Apply Now" : "Criteria Not Met"}
-                  </button>
+{/*                   <button */}
+{/*                     disabled={!isEligible} */}
+{/*                     onClick={() => handleApply(note.id)} */}
+{/*                     className={`w-full py-3 rounded-xl font-bold transition-all shadow-sm ${ */}
+{/*                       isEligible */}
+{/*                         ? "bg-indigo-600 text-white hover:bg-indigo-700 active:scale-95" */}
+{/*                         : "bg-gray-100 text-gray-400 cursor-not-allowed" */}
+{/*                     }`} */}
+{/*                   > */}
+{/*                     {isEligible ? "Apply Now" : "Criteria Not Met"} */}
+{/*                   </button> */}
+
+                    <button
+                      disabled={!isEligible}
+                      onClick={() => handleApply(note.id)}
+                      className={`w-full py-3 rounded-xl font-bold transition-all shadow-sm ${
+                        isEligible
+                          ? "bg-indigo-600 text-white hover:bg-indigo-700 active:scale-95"
+                          : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                      }`}
+                    >
+                      {isEligible ? "Apply Now" : "Criteria Not Met"}
+                    </button>
+
+
                 </div>
               )}
             </div>
