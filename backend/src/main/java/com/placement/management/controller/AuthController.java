@@ -2,6 +2,7 @@ package com.placement.management.controller;
 
 import com.placement.management.entity.User;
 import com.placement.management.service.UserService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,10 +24,27 @@ public class AuthController {
         return userService.registerUser(user);
     }
 
+//    @PostMapping("/signin")
+//    public Map<String, String> signin(@RequestBody Map<String, String> data) {
+//        return userService.loginLogic(data.get("email"), data.get("password"), data.get("role"));
+//    }
+
     @PostMapping("/signin")
-    public Map<String, String> signin(@RequestBody Map<String, String> data) {
-        return userService.loginLogic(data.get("email"), data.get("password"), data.get("role"));
+    public ResponseEntity<?> signin(@RequestBody Map<String, String> data) {
+        // We change this to a Map<String, Object> to handle the Long ID
+        Map<String, Object> response = userService.loginLogic(
+                data.get("email"),
+                data.get("password"),
+                data.get("role")
+        );
+
+        if (response.get("status").equals("success")) {
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.status(401).body(response);
+        }
     }
+
 
     @PostMapping("/forgot-password")
     public String forgotPassword(@RequestBody Map<String, String> data) {

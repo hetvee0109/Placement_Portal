@@ -35,34 +35,53 @@ public class UserService {
     }
 
     // ================= SIGN IN =================
-    public Map<String, String> loginLogic(String email, String password, String role) {
-        Map<String, String> response = new HashMap<>();
-        if (email == null || password == null || role == null) {
-            response.put("status", "error");
-            response.put("message", "All fields are required");
-            return response;
-        }
+//    public Map<String, String> loginLogic(String email, String password, String role) {
+//        Map<String, String> response = new HashMap<>();
+//        if (email == null || password == null || role == null) {
+//            response.put("status", "error");
+//            response.put("message", "All fields are required");
+//            return response;
+//        }
+//
+//        User user = repo.findByEmail(email).orElse(null);
+//        if (user == null) {
+//            response.put("status", "error");
+//            response.put("message", "Invalid email");
+//            return response;
+//        }
+//        if (!user.getPassword().equals(password)) {
+//            response.put("status", "error");
+//            response.put("message", "Invalid password");
+//            return response;
+//        }
+//        if (!user.getRole().equalsIgnoreCase(role)) {
+//            response.put("status", "error");
+//            response.put("message", "Invalid role");
+//            return response;
+//        }
+//
+//        response.put("status", "success");
+//        response.put("email", user.getEmail());
+//        response.put("role", user.getRole());
+//        return response;
+//    }
 
+    public Map<String, Object> loginLogic(String email, String password, String role) {
+        Map<String, Object> response = new HashMap<>();
+
+        // Use findByEmail which we defined in UserRepository
         User user = repo.findByEmail(email).orElse(null);
-        if (user == null) {
-            response.put("status", "error");
-            response.put("message", "Invalid email");
-            return response;
-        }
-        if (!user.getPassword().equals(password)) {
-            response.put("status", "error");
-            response.put("message", "Invalid password");
-            return response;
-        }
-        if (!user.getRole().equalsIgnoreCase(role)) {
-            response.put("status", "error");
-            response.put("message", "Invalid role");
-            return response;
-        }
 
-        response.put("status", "success");
-        response.put("email", user.getEmail());
-        response.put("role", user.getRole());
+        if (user != null && user.getPassword().equals(password) && user.getRole().equalsIgnoreCase(role)) {
+            response.put("status", "success");
+            response.put("id", user.getId()); // Crucial: Sends '3' for Hetvee
+            response.put("name", user.getName());
+            response.put("role", user.getRole());
+            response.put("email", user.getEmail());
+        } else {
+            response.put("status", "error");
+            response.put("message", "Invalid email, password, or role");
+        }
         return response;
     }
 

@@ -21,5 +21,4 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     // ADD this method (do not remove existing ones)
     List<Application> findByStudent(User student);
 
-
 }

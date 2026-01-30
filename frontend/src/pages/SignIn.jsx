@@ -69,16 +69,17 @@ export default function SignIn() {
 
       // 🔥 LOGIN FLOW
       if (data.status === "success") {
-        localStorage.setItem("userId", data.id);       // ✅ REQUIRED
+            localStorage.clear();
+          localStorage.setItem("userId", data.id);       // ✅ REQUIRED
           localStorage.setItem("userName", data.name);   // ✅ REQUIRED
           localStorage.setItem("userEmail", data.email);
           localStorage.setItem("userRole", data.role);
 
         if (data.role === "STUDENT") {
-          navigate("/student-dashboard");
-        } else if (data.role === "TPO") {
-          navigate("/tpo-dashboard");
-        }
+                window.location.href = "/student-dashboard";
+            } else {
+                window.location.href = "/tpo-dashboard";
+            }
       } else {
         alert(data.message);
       }
