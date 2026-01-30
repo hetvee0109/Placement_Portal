@@ -32,18 +32,16 @@ function TpoNavbar() {
         <NavLink to="/tpo/resume-insights" className={linkClass}>
           Resume Insights
         </NavLink>
+        <NavLink to="/tpo/notifications" className={linkClass}>
+                  Notifications
+        </NavLink>
         <NavLink to="/tpo/application-tracker" className={linkClass}>
           Application Tracker
-        </NavLink>
-        <NavLink to="/tpo/result-portal" className={linkClass}>
-          Result Portal
         </NavLink>
         <NavLink to="/tpo/placement-summary" className={linkClass}>
           Placement Summary
         </NavLink>
-        <NavLink to="/tpo/notifications" className={linkClass}>
-          Notifications
-        </NavLink>
+
 
         <button
           onClick={handleLogout}

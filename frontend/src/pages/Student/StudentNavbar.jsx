@@ -9,6 +9,7 @@ function StudentNavbar() {
       : "text-blue-700 px-4 py-2 rounded-md hover:bg-blue-100 hover:text-blue-800 font-medium";
 
   const handleLogout = () => {
+      localStorage.clear();
     localStorage.removeItem("role");
     navigate("/");
     window.location.reload();

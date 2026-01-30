@@ -44,8 +44,7 @@ public class StudentProfile {
     // =====================
     // Career Preference
     // =====================
-    @Enumerated(EnumType.STRING)
-    @Column(name = "career_preference")
+    @Enumerated(EnumType.STRING) // Ensure this line is present!
     private CareerPreference careerPreference;
 
 

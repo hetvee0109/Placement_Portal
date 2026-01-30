@@ -35,9 +35,6 @@ function StudentNavbar() {
         <NavLink to="/student/jobs" className={linkClass}>
           Job Applications
         </NavLink>
-        <NavLink to="/student/placement-status" className={linkClass}>
-          Placement Status
-        </NavLink>
         <NavLink to="/student/about-tpo" className={linkClass}>
           About TPO
         </NavLink>
