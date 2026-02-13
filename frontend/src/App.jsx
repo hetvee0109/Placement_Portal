@@ -116,14 +116,14 @@
 //
 // export default App;
 
-
-import React from "react";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
-  Outlet,
+  Outlet
 } from "react-router-dom";
 
 import "./App.css";
@@ -150,7 +150,7 @@ import TPODashboard from "./pages/TPO/Dashboard";
 import StudentManagement from "./pages/TPO/StudentManagement";
 import ResumeInsights from "./pages/TPO/ResumeInsights";
 import ApplicationTracker from "./pages/TPO/ApplicationTracker";
-import ResultPortal from "./pages/TPO/ResultPortal";
+import ResultPortal from "./pages/TPO/ResultPortalV2";
 import PlacementSummary from "./pages/TPO/PlacementSummary";
 import TPONotifications from "./pages/TPO/Notifications";
 
@@ -189,27 +189,18 @@ const TpoLayout = () => (
   </>
 );
 
-/* ================= APP ================= */
 function App() {
-  // Extracting userId for the dynamic Student Dashboard
   const userId = localStorage.getItem("userId");
 
   return (
     <Router>
       <Routes>
-
-        {/* PUBLIC ROUTES */}
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
 
-        {/* ================= STUDENT ROUTES ================= */}
         <Route element={<ProtectedRoute allowedRole="STUDENT" />}>
           <Route element={<StudentLayout />}>
-            {/* UPDATED: Passing userId prop to StudentDashboard */}
-            <Route
-              path="/student-dashboard"
-              element={<StudentDashboard userId={userId} />}
-            />
+            <Route path="/student-dashboard" element={<StudentDashboard userId={userId} />} />
             <Route path="/student/profile" element={<Profile />} />
             <Route path="/student/notifications" element={<Notifications />} />
             <Route path="/student/jobs" element={<JobApplications />} />
@@ -218,7 +209,6 @@ function App() {
           </Route>
         </Route>
 
-        {/* ================= TPO ROUTES ================= */}
         <Route element={<ProtectedRoute allowedRole="TPO" />}>
           <Route element={<TpoLayout />}>
             <Route path="/tpo-dashboard" element={<TPODashboard />} />
@@ -231,10 +221,8 @@ function App() {
           </Route>
         </Route>
 
-        {/* REDIRECTS */}
         <Route path="/" element={<Navigate to="/signin" replace />} />
         <Route path="*" element={<Navigate to="/signin" replace />} />
-
       </Routes>
     </Router>
   );

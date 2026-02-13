@@ -2,6 +2,7 @@ package com.placement.management.controller;
 
 import com.placement.management.entity.User;
 import com.placement.management.service.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,10 +25,6 @@ public class AuthController {
         return userService.registerUser(user);
     }
 
-//    @PostMapping("/signin")
-//    public Map<String, String> signin(@RequestBody Map<String, String> data) {
-//        return userService.loginLogic(data.get("email"), data.get("password"), data.get("role"));
-//    }
 
     @PostMapping("/signin")
     public ResponseEntity<?> signin(@RequestBody Map<String, String> data) {
@@ -62,7 +59,14 @@ public class AuthController {
     }
 
     @DeleteMapping("/students/{id}")
-    public String deleteStudent(@PathVariable Long id) {
-        return userService.deleteUserById(id);
+    public ResponseEntity<String> deleteStudent(@PathVariable Long id) {
+        try {
+            userService.deleteUserById(id);
+            return ResponseEntity.ok("Student and all associated records deleted successfully");
+        } catch (Exception e) {
+            // This handles cases where deletion might still fail due to unforeseen constraints
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error deleting student: " + e.getMessage());
+        }
     }
 }

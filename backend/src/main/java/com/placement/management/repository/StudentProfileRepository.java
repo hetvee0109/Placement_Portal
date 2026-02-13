@@ -9,6 +9,6 @@ import java.util.Optional;
 public interface StudentProfileRepository extends JpaRepository<StudentProfile, Long> {
 
     Optional<StudentProfile> findByUser(User user);
-
+    void deleteByUserId(Long userId);
     boolean existsByUser(User user);
 }
