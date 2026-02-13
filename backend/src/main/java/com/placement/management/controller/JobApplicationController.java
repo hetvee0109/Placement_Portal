@@ -4,6 +4,7 @@ import com.placement.management.entity.Application;
 import com.placement.management.entity.User;
 import com.placement.management.repository.ApplicationRepository;
 import com.placement.management.repository.UserRepository;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,4 +31,6 @@ public class JobApplicationController {
 
         return applicationRepo.findByStudent(student);
     }
+
+
 }

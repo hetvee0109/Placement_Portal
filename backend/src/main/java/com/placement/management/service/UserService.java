@@ -2,7 +2,10 @@ package com.placement.management.service;
 
 import com.placement.management.entity.User;
 import com.placement.management.repository.UserRepository;
+import com.placement.management.repository.StudentProfileRepository; // Import added
+import com.placement.management.repository.ApplicationRepository;    // Import added
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
@@ -12,9 +15,14 @@ import java.util.Map;
 public class UserService {
 
     private final UserRepository repo;
+    private final StudentProfileRepository profileRepo; // Added
+    private final ApplicationRepository appRepo;       // Added
 
-    public UserService(UserRepository repo) {
+    // Constructor injection for all required repositories
+    public UserService(UserRepository repo, StudentProfileRepository profileRepo, ApplicationRepository appRepo) {
         this.repo = repo;
+        this.profileRepo = profileRepo;
+        this.appRepo = appRepo;
     }
 
     // ================= SIGN UP =================
@@ -34,47 +42,13 @@ public class UserService {
         return "Signup successful";
     }
 
-    // ================= SIGN IN =================
-//    public Map<String, String> loginLogic(String email, String password, String role) {
-//        Map<String, String> response = new HashMap<>();
-//        if (email == null || password == null || role == null) {
-//            response.put("status", "error");
-//            response.put("message", "All fields are required");
-//            return response;
-//        }
-//
-//        User user = repo.findByEmail(email).orElse(null);
-//        if (user == null) {
-//            response.put("status", "error");
-//            response.put("message", "Invalid email");
-//            return response;
-//        }
-//        if (!user.getPassword().equals(password)) {
-//            response.put("status", "error");
-//            response.put("message", "Invalid password");
-//            return response;
-//        }
-//        if (!user.getRole().equalsIgnoreCase(role)) {
-//            response.put("status", "error");
-//            response.put("message", "Invalid role");
-//            return response;
-//        }
-//
-//        response.put("status", "success");
-//        response.put("email", user.getEmail());
-//        response.put("role", user.getRole());
-//        return response;
-//    }
-
     public Map<String, Object> loginLogic(String email, String password, String role) {
         Map<String, Object> response = new HashMap<>();
-
-        // Use findByEmail which we defined in UserRepository
         User user = repo.findByEmail(email).orElse(null);
 
         if (user != null && user.getPassword().equals(password) && user.getRole().equalsIgnoreCase(role)) {
             response.put("status", "success");
-            response.put("id", user.getId()); // Crucial: Sends '3' for Hetvee
+            response.put("id", user.getId());
             response.put("name", user.getName());
             response.put("role", user.getRole());
             response.put("email", user.getEmail());
@@ -109,9 +83,20 @@ public class UserService {
     }
 
     // ================= DELETE STUDENT BY ID =================
-    public String deleteUserById(Long id) {
-        if (!repo.existsById(id)) return "User not found";
-        repo.deleteById(id);
-        return "Student deleted successfully";
+    @Transactional
+    public void deleteUserById(Long userId) {
+        // 1. Check if user exists first to avoid unnecessary work
+        if (!repo.existsById(userId)) {
+            return;
+        }
+
+        // 2. Delete associated data in the correct order to respect constraints
+        // Note: Make sure these methods (deleteByUserId/deleteByStudentId)
+        // are defined in your respective repositories.
+        profileRepo.deleteByUserId(userId);
+        appRepo.deleteByStudentId(userId);
+
+        // 3. Finally delete the user from the users table
+        repo.deleteById(userId);
     }
 }
