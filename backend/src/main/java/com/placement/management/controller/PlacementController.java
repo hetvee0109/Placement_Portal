@@ -61,16 +61,16 @@ public class PlacementController {
     }
 
 
-    // ✅ PLACEMENT SUMMARY FOR FRONTEND TABLE
     @GetMapping("/summary")
     public ResponseEntity<List<PlacementSummaryDTO>> getSummary() {
-
+        // Fetch and map entities to DTOs including the date field
         List<PlacementSummaryDTO> list = placementRepo.findAll().stream()
                 .map(p -> new PlacementSummaryDTO(
                         p.getId(),
                         p.getStudent().getName(),
                         p.getNotification().getCompanyName(),
-                        p.getFinalCtc()
+                        p.getFinalCtc(),
+                        p.getSelectionDate() // ✅ Added this to match your entity and updated DTO
                 ))
                 .toList();
 
