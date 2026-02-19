@@ -1,50 +1,5 @@
-// import React, { useEffect, useState } from "react";
-//
-// const PlacementSummary = () => {
-//   const [records, setRecords] = useState([]);
-//
-//   useEffect(() => {
-//     fetch("http://localhost:8080/api/placements/summary")
-//       .then((res) => res.json())
-//       .then((data) => setRecords(data))
-//       .catch((err) => console.error(err));
-//   }, []);
-//
-//   return (
-//     <div className="p-8 bg-white rounded-3xl shadow-sm border border-gray-100">
-//       <h2 className="text-2xl font-black text-gray-800 mb-6 border-b pb-4">
-//         🎓 Placement Summary
-//       </h2>
-//       <div className="overflow-hidden rounded-xl border border-gray-200">
-//         <table className="w-full text-left border-collapse">
-//           <thead>
-//             <tr className="bg-indigo-600 text-white text-sm uppercase">
-//               <th className="px-6 py-4">Student Name</th>
-//               <th className="px-6 py-3">Company</th>
-//               <th className="px-6 py-3">Package (CTC)</th>
-//               <th className="px-6 py-3">Date</th>
-//             </tr>
-//           </thead>
-//           <tbody className="divide-y divide-gray-100">
-//             {records.map((r) => (
-//               <tr key={r.id} className="hover:bg-gray-50 transition-colors">
-//                 <td className="px-6 py-4 font-semibold text-gray-700">{r.studentName}</td>
-//                 <td className="px-6 py-4 text-indigo-700 font-medium">{r.companyName}</td>
-//                 <td className="px-6 py-4 text-green-600 font-bold">₹{r.finalCtc} LPA</td>
-//                 <td className="px-6 py-4 text-gray-500 text-sm">{r.selectionDate}</td>
-//               </tr>
-//             ))}
-//           </tbody>
-//         </table>
-//       </div>
-//     </div>
-//   );
-// };
-//
-// export default PlacementSummary;
-
-
 import React, { useEffect, useState, useMemo } from "react";
+import * as XLSX from "xlsx";
 
 const PlacementSummary = () => {
   const [records, setRecords] = useState([]);
@@ -56,10 +11,20 @@ const PlacementSummary = () => {
       setLoading(true);
       const res = await fetch("http://localhost:8080/api/placements/summary");
       const data = await res.json();
-      setRecords(data || []);
+
+      // Remove duplicates: Keep the record with the highest CTC per student
+      const uniqueStudents = {};
+      data.forEach((record) => {
+        const name = record.studentName;
+        if (!uniqueStudents[name] || record.finalCtc > uniqueStudents[name].finalCtc) {
+          uniqueStudents[name] = record;
+        }
+      });
+
+      setRecords(Object.values(uniqueStudents) || []);
     } catch (err) {
-      console.error(err);
-      alert("Failed to load placement summary. Check backend.");
+      console.error("Fetch error:", err);
+      alert("Failed to load placement summary.");
     } finally {
       setLoading(false);
     }
@@ -69,89 +34,90 @@ const PlacementSummary = () => {
     fetchSummary();
   }, []);
 
-  // ✅ Search filter
   const filteredRecords = useMemo(() => {
     const term = search.toLowerCase().trim();
     if (!term) return records;
-
-    return records.filter((r) => {
-      const student = (r.studentName || "").toLowerCase();
-      const company = (r.companyName || "").toLowerCase();
-      return student.includes(term) || company.includes(term);
-    });
+    return records.filter((r) =>
+      r.studentName?.toLowerCase().includes(term) ||
+      r.companyName?.toLowerCase().includes(term)
+    );
   }, [records, search]);
 
-  if (loading) {
-    return (
-      <div className="max-w-6xl mx-auto mt-10 p-10 text-center font-bold text-indigo-600">
-        Loading Placement Summary...
-      </div>
-    );
-  }
+  const downloadExcel = () => {
+    if (filteredRecords.length === 0) return;
+
+    const worksheetData = filteredRecords.map((r) => ({
+      "Student Name": r.studentName,
+      "Company Name": r.companyName,
+      "CTC (LPA)": `₹${r.finalCtc} LPA`,
+      "Selection Date": r.selectionDate ? new Date(r.selectionDate).toLocaleDateString() : "N/A",
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(worksheetData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Placement Summary");
+    XLSX.writeFile(workbook, `Placement_Summary_${new Date().toLocaleDateString()}.xlsx`);
+  };
+
+  if (loading) return <div className="p-20 text-center font-bold text-indigo-600 animate-pulse">Loading Summary...</div>;
 
   return (
     <div className="max-w-6xl mx-auto p-8 bg-white rounded-3xl shadow-sm border mt-10">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-        <h2 className="text-2xl font-black text-gray-800">
-          🎓 Placement Summary
-        </h2>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+        <div>
+          <h2 className="text-3xl font-black text-gray-800 tracking-tight">🎓 Placement Summary</h2>
+          <p className="text-sm text-gray-400 font-bold uppercase tracking-wider">Unique placed students only</p>
+        </div>
 
-        <div className="flex gap-3 w-full md:w-auto">
+        <div className="flex flex-wrap gap-3">
           <input
             type="text"
+            placeholder="Search student or company..."
+            className="border-2 border-gray-100 p-3 rounded-xl outline-none focus:border-indigo-300 w-64 text-sm font-medium"
             value={search}
-            placeholder="Search student / company..."
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full md:w-72 border p-3 rounded-xl outline-none focus:ring-2 focus:ring-indigo-300"
           />
-
-          <button
-            onClick={fetchSummary}
-            className="bg-indigo-600 text-white px-5 rounded-xl font-black"
-          >
+          <button onClick={downloadExcel} className="bg-green-600 text-white px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-green-700 transition-all shadow-md">
+            Download Excel
+          </button>
+          <button onClick={fetchSummary} className="bg-indigo-600 text-white px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-md">
             Refresh
           </button>
         </div>
       </div>
 
-      {/* Table */}
-      {filteredRecords.length === 0 ? (
-        <p className="text-gray-400 italic">No placement records found.</p>
-      ) : (
-        <div className="overflow-hidden rounded-2xl border">
-          <table className="w-full text-left">
-            <thead className="bg-indigo-600 text-white text-xs uppercase">
-              <tr>
-                <th className="px-6 py-4">Student Name</th>
-                <th className="px-6 py-4">Company</th>
-                <th className="px-6 py-4">Final CTC (LPA)</th>
-                <th className="px-6 py-4">Date</th>
-              </tr>
-            </thead>
-
-            <tbody className="divide-y divide-gray-100">
-              {filteredRecords.map((r, index) => (
-                <tr key={r.id || index} className="hover:bg-indigo-50/50">
-                  <td className="px-6 py-4 font-bold">{r.studentName}</td>
-
-                  <td className="px-6 py-4 text-indigo-700 font-semibold">
+      <div className="overflow-hidden rounded-2xl border border-gray-100 shadow-xl">
+        <table className="w-full text-left">
+          <thead className="bg-[#5c56e1] text-white text-[10px] uppercase tracking-[0.2em] font-black">
+            <tr>
+              <th className="px-8 py-5">Student Name</th>
+              <th className="px-8 py-5">Company</th>
+              <th className="px-8 py-5">Final CTC (LPA)</th>
+              <th className="px-8 py-5 text-right">Selection Date</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-50 bg-white">
+            {filteredRecords.map((r, index) => (
+              <tr key={index} className="hover:bg-indigo-50/30 transition-colors group">
+                <td className="px-8 py-5 font-bold text-gray-900">{r.studentName}</td>
+                <td className="px-8 py-5">
+                  <span className="text-indigo-600 font-black text-[11px] uppercase bg-indigo-50 px-3 py-1 rounded-lg">
                     {r.companyName}
-                  </td>
-
-                  <td className="px-6 py-4 text-green-600 font-black">
-                    ₹{r.finalCtc} LPA
-                  </td>
-
-                  <td className="px-6 py-4 text-gray-500 text-sm">
-                    {r.selectionDate || "-"}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+                  </span>
+                </td>
+                <td className="px-8 py-5 font-black text-green-600">₹{r.finalCtc} LPA</td>
+                <td className="px-8 py-5 text-right text-gray-400 font-black text-xs uppercase">
+                  {r.selectionDate ? (
+                    new Date(r.selectionDate).toLocaleDateString('en-GB', {
+                      day: '2-digit', month: 'short', year: 'numeric'
+                    })
+                  ) : "—"}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

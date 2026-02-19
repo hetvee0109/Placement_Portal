@@ -45,4 +45,6 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 
     void deleteByStudentId(Long studentId);
 
+    // Inside ApplicationRepository.java
+    Optional<Application> findTopByStudentIdAndStatusAndNotificationIdNot(Long studentId, ApplicationStatus status, Long notificationId);
 }

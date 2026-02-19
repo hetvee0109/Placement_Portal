@@ -9,24 +9,24 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // 1. Get the absolute path to the "uploads" folder in your project root
+        // 1. Resolve the absolute path to your 'uploads' folder
+        // This ensures the server finds the folder regardless of where the app is launched from.
         String uploadRoot = Paths.get("uploads").toAbsolutePath().toString().replace("\\", "/");
-
-        // 2. Ensure the path ends with a slash and has the 'file:' protocol
         String resourceLocation = "file:" + uploadRoot + "/";
 
-        // This allows access via http://localhost:8080/uploads/resumes/filename.pdf
+        // 2. Map the URL /uploads/** to the physical 'uploads' folder
+        // This allows the TPO to view files at: http://localhost:8080/uploads/offer_letters/filename.pdf
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations(resourceLocation);
 
-        // This allows access via http://localhost:8080/api/notifications/files/filename.pdf
-        // This matches the URL we used in the React "VIEW ATTACHED PDF" button
+        // 3. Keep support for legacy notification file paths if necessary
         registry.addResourceHandler("/api/notifications/files/**")
                 .addResourceLocations(resourceLocation);
     }
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
+        // Essential to allow your React app (Port 3000/5173) to talk to Spring Boot (Port 8080)
         registry.addMapping("/**")
                 .allowedOrigins("http://localhost:5173", "http://localhost:3000", "http://localhost:3001")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
