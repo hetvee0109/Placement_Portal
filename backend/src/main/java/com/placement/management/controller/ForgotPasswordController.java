@@ -19,7 +19,7 @@ import java.util.Random;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
+@CrossOrigin(origins = {"http://localhost:3000", "https://coruscating-faloodeh-6a01f8.netlify.app"}, allowCredentials = "true")
 public class ForgotPasswordController {
 
     @Autowired(required = false)
