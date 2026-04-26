@@ -22,7 +22,7 @@ import java.util.Random;
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class ForgotPasswordController {
 
-    @Autowired
+    @Autowired(required = false)
     private JavaMailSender mailSender;
 
     @Autowired
