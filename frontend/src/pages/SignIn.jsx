@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import API_URL from "../api";
 
 export default function SignIn() {
   // --- Original Login States ---
@@ -25,7 +26,7 @@ export default function SignIn() {
     }
 
     try {
-      const res = await fetch("http://localhost:8080/api/auth/send-otp", {
+      const res = await fetch(`${API_URL}/api/auth/send-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -49,7 +50,7 @@ export default function SignIn() {
       return;
     }
     try {
-      const res = await fetch("http://localhost:8080/api/auth/verify-otp", {
+      const res = await fetch(`${API_URL}/api/auth/verify-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, otp }),
@@ -84,7 +85,7 @@ export default function SignIn() {
           return;
         }
         try {
-          const res = await fetch("http://localhost:8080/api/auth/reset-password", {
+          const res = await fetch(`${API_URL}/api/auth/reset-password`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, password: newPassword }),
